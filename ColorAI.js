@@ -1,70 +1,79 @@
-const tf = require('@tensorflow/tfjs');
+const tf = require('@tensorflow/tfjs');// Используем бэкенд с поддержкой GPU
 const fs = require('fs');
-const {ManualInput, generateColor} = require("./dataGenerated");
-const datasetPath = 'parcer/colorDataSet.json';
+const { ManualInput, generateColor, saveModel } = require("./dataGenerated");
+const datasetPath = 'parser/colorDataSet.json';
 
-// Чтение датасета из файла
-fs.readFile(datasetPath, 'utf8', (err, data) => {
-    if (err) {
+async function readDataset() {
+    try {
+        const data = await fs.promises.readFile(datasetPath, 'utf8');
+        const dataset = JSON.parse(data);
+        return dataset;
+    } catch (err) {
         console.error('Error reading the dataset file:', err);
+        return null;
+    }
+}
+
+async function trainModel(inputs, targets, labels, epochs) {
+    const model = tf.sequential();
+    model.add(tf.layers.dense({ units: 64, inputShape: [3], activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: labels.length, activation: 'softmax' }));
+    model.compile({ loss: 'categoricalCrossentropy', optimizer: 'adam' });
+
+    await model.fit(inputs, targets, {
+        epochs: epochs,
+        callbacks: {
+            onEpochEnd: (epoch) => {
+                console.log(`Epoch ${epoch + 1}`);
+            }
+        }
+    });
+
+    return model;
+}
+
+async function main(epochs) {
+
+    const dataset = await readDataset();
+    if (!dataset) {
         return;
     }
+    const labels = [...new Set(dataset.map(item => item.name))];
+    const labelToIndex = {};
+    labels.forEach((label, index) => {
+        labelToIndex[label] = index;
+    });
 
-    try {
-        const dataset = JSON.parse(data);
+    const inputs = [];
+    const targets = [];
+    dataset.forEach(data => {
+        const { rgb, name } = data;
+        const input = rgb;
+        const target = labelToIndex[name];
+        inputs.push(input);
+        targets.push(target);
+    });
+    const inputTensor = tf.tensor2d(inputs);
+    const targetTensor = tf.oneHot(tf.tensor1d(targets, 'int32'), labels.length);
 
-        // Извлечение уникальных меток (названий цветов) из датасета
-        const labels = [...new Set(dataset.map(item => item.name))];
-        const labelToIndex = {};
-        labels.forEach((label, index) => {
-            labelToIndex[label] = index;
-        });
+    const model = await trainModel(inputTensor, targetTensor, labels, epochs);
 
-        // Создание модели нейронной сети
-        const model = tf.sequential();
-        model.add(tf.layers.dense({ units: 64, inputShape: [3], activation: 'relu' }));
-        model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
-        model.add(tf.layers.dense({ units: labels.length, activation: 'softmax' }));
+    // Сохранение модели
+    await saveModel(model);
 
-        // Компиляция модели
-        model.compile({ loss: 'categoricalCrossentropy', optimizer: 'adam' });
+    // Указываем цвет в ручную
+    const manualColor = {
+        r: 255,
+        g: 0,
+        b: 0
+    };
 
-        // Подготовка входных данных и меток для обучения
-        const inputs = [];
-        const targets = [];
-        dataset.forEach(data => {
-            const { rgb, name } = data;
-            const input = rgb;
-            const target = labelToIndex[name];
-            inputs.push(input);
-            targets.push(target);
-        });
-        const inputTensor = tf.tensor2d(inputs);
-        const targetTensor = tf.oneHot(tf.tensor1d(targets, 'int32'), labels.length);
+    // Автомотически сгенирированный массив, на случай если нужен рандомный цвет
+    const autoColor = generateColor();
 
-        // Обучение модели с выводом номера эпохи
-        model.fit(inputTensor, targetTensor, {
-            epochs: 1,
-            callbacks: {
-                onEpochEnd: (epoch) => {
-                    console.log(`Epoch ${epoch + 1}`);
-                }
-            }
-        }).then(() => {
-            // Указываем цвет в ручную
-            let manualColor = {
-                r: 255,
-                g: 0,
-                b: 0
-            }
+    // Выдаем в консоль результат работы
+    console.log(ManualInput(model, labels, manualColor));
+}
 
-            //Автомотически сгенирированный массив, на случай если нужен рандомный цвет
-            let autoColor = generateColor()
-
-            // Выдаем в консоль результат работы
-            console.log(ManualInput(model,labels, manualColor))
-        });
-    } catch (e) {
-        console.error('Error parsing dataset JSON:', e);
-    }
-});
+main(Math.pow(2, 1));

@@ -1,4 +1,6 @@
 const tf = require('@tensorflow/tfjs');
+const fs = require('fs');
+const modelPath = './saved_model/model.json';
 
 // Генирируем имя исходя из цвета
 function generateName(model, labels, input) {
@@ -46,4 +48,18 @@ function ManualInput(model,labels, {r, g, b}) {
     };
 }
 
-module.exports = {generateName, generateColor, ManualInput}
+// Сохранение модели
+async function saveModel(model) {
+    const modelData = await model.save(tf.io.withSaveHandler(async (artifacts) => {
+        await fs.promises.writeFile(modelPath, JSON.stringify(artifacts.modelTopology));
+        return modelPath;
+    }));
+    console.log('Model saved:', modelData);
+}
+
+async function loadModel() {
+    const modelTopology = JSON.parse(await fs.promises.readFile(modelPath, 'utf8'));
+    return await tf.loadLayersModel(tf.io.fromMemory(modelTopology));
+}
+
+module.exports = {generateName, generateColor, saveModel, loadModel, ManualInput}
