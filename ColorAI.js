@@ -1,7 +1,7 @@
 const tf = require('@tensorflow/tfjs');
 const fs = require('fs');
 
-const datasetPath = 'generated_dataset.json';
+const datasetPath = 'colorDataSet.json';
 
 // Чтение датасета из файла
 fs.readFile(datasetPath, 'utf8', (err, data) => {
@@ -44,7 +44,7 @@ fs.readFile(datasetPath, 'utf8', (err, data) => {
 
         // Обучение модели с выводом номера эпохи
         model.fit(inputTensor, targetTensor, {
-            epochs: 2000,
+            epochs: 1000,
             callbacks: {
                 onEpochEnd: (epoch) => {
                     console.log(`Epoch ${epoch + 1}`);
