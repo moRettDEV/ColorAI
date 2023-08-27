@@ -1,6 +1,6 @@
 const tf = require('@tensorflow/tfjs');
 const fs = require('fs');
-
+const {ManualInput, generateColor} = require("./dataGenerated");
 const datasetPath = 'parcer/colorDataSet.json';
 
 // Чтение датасета из файла
@@ -44,41 +44,26 @@ fs.readFile(datasetPath, 'utf8', (err, data) => {
 
         // Обучение модели с выводом номера эпохи
         model.fit(inputTensor, targetTensor, {
-            epochs: 10,
+            epochs: 1,
             callbacks: {
                 onEpochEnd: (epoch) => {
                     console.log(`Epoch ${epoch + 1}`);
                 }
             }
         }).then(() => {
-            generateColorAndName(255, 0, 0); // Вызываем генерацию после обучения
+            // Указываем цвет в ручную
+            let manualColor = {
+                r: 255,
+                g: 0,
+                b: 0
+            }
+
+            //Автомотически сгенирированный массив, на случай если нужен рандомный цвет
+            let autoColor = generateColor()
+
+            // Выдаем в консоль результат работы
+            console.log(ManualInput(model,labels, manualColor))
         });
-
-        // Генерация цвета и его классификация
-        const generateColorAndName = async (r, g, b) => {
-            // Преобразование входных RGB-значений в диапазон [0, 1]
-            const input = tf.tensor2d([[r / 255, g / 255, b / 255]]);
-
-            // Получение предсказания от модели
-            const prediction = model.predict(input);
-
-            // Определение индекса метки с наибольшей вероятностью
-            const labelIndex = prediction.argMax(1).dataSync()[0];
-            const generatedName = labels[labelIndex];
-
-            // Преобразование входных значений в массив RGB
-            const rgbColor = [r, g, b];
-
-            console.log('Input RGB color:', rgbColor);
-            console.log('Generated name:', generatedName);
-            console.log(`{ "rgb": ${rgbColor}, "name": ${generatedName} },`);
-
-            // Возвращение объекта с сгенерированным цветом и именем
-            return {
-                rgb: rgbColor,
-                name: generatedName
-            };
-        };
     } catch (e) {
         console.error('Error parsing dataset JSON:', e);
     }
