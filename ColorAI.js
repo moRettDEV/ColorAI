@@ -41,12 +41,14 @@ fs.readFile(datasetPath, 'utf8', (err, data) => {
         const targetTensor = tf.oneHot(tf.tensor1d(targets, 'int32'), labels.length);
 
         model.fit(inputTensor, targetTensor, {
-            epochs: 100,
+            epochs: 2000,
             callbacks: {
-                onEpochEnd: (epoch, logs) => {
-                    console.log(`Epoch ${epoch + 1} - loss: ${logs.loss}`);
+                onEpochEnd: (epoch) => {
+                    console.log(`Epoch ${epoch + 1}`);
                 }
             }
+        }).then(() => {
+            generateColorAndName(); // Вызываем генерацию после обучения
         });
 
         const generateColorAndName = async () => {
@@ -56,11 +58,16 @@ fs.readFile(datasetPath, 'utf8', (err, data) => {
             const labelIndex = prediction.argMax(1).dataSync()[0];
             const generatedName = labels[labelIndex];
 
+            let generatedColor = input.dataSync()
+
+            const rgbColor = generatedColor.map(value => Math.round(value * 255));
+            console.log('Generated RGB color:', rgbColor);
+
             console.log('Generated color:', input.dataSync());
             console.log('Generated name:', generatedName);
-        };
 
-        generateColorAndName();
+            console.log(`{ "rgb": ${rgbColor}, "name": ${generatedName} },`)
+        };
 
     } catch (e) {
         console.error('Error parsing dataset JSON:', e);
