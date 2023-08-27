@@ -15,4 +15,5 @@ Thumbs.db
 
 # Ignore configuration files with sensitive information
 config.js
+colors.js
 .env

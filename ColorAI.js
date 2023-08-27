@@ -44,31 +44,40 @@ fs.readFile(datasetPath, 'utf8', (err, data) => {
 
         // Обучение модели с выводом номера эпохи
         model.fit(inputTensor, targetTensor, {
-            epochs: 1000,
+            epochs: 10,
             callbacks: {
                 onEpochEnd: (epoch) => {
                     console.log(`Epoch ${epoch + 1}`);
                 }
             }
         }).then(() => {
-            generateColorAndName(); // Вызываем генерацию после обучения
+            generateColorAndName(255, 0, 0); // Вызываем генерацию после обучения
         });
 
         // Генерация цвета и его классификация
-        const generateColorAndName = async () => {
-            const input = tf.tensor2d([[Math.random(), Math.random(), Math.random()]]);
+        const generateColorAndName = async (r, g, b) => {
+            // Преобразование входных RGB-значений в диапазон [0, 1]
+            const input = tf.tensor2d([[r / 255, g / 255, b / 255]]);
+
+            // Получение предсказания от модели
             const prediction = model.predict(input);
 
+            // Определение индекса метки с наибольшей вероятностью
             const labelIndex = prediction.argMax(1).dataSync()[0];
             const generatedName = labels[labelIndex];
 
-            let generatedColor = input.dataSync();
-            const rgbColor = generatedColor.map(value => Math.round(value * 255));
+            // Преобразование входных значений в массив RGB
+            const rgbColor = [r, g, b];
 
-            console.log('Generated RGB color:', rgbColor);
-            console.log('Generated color:', input.dataSync());
+            console.log('Input RGB color:', rgbColor);
             console.log('Generated name:', generatedName);
             console.log(`{ "rgb": ${rgbColor}, "name": ${generatedName} },`);
+
+            // Возвращение объекта с сгенерированным цветом и именем
+            return {
+                rgb: rgbColor,
+                name: generatedName
+            };
         };
     } catch (e) {
         console.error('Error parsing dataset JSON:', e);
