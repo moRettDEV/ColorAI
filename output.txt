@@ -1,0 +1,8 @@
+Color Name: Cherry Red
+Normalized RGB: 0.8,0.2,0.4
+Denormalized RGB: 204,51,102
+------------------------
+Color Name: Mint Green
+Normalized RGB: 0.1,0.7,0.2
+Denormalized RGB: 26,179,51
+------------------------

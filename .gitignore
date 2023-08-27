@@ -1,0 +1,18 @@
+# Ignore Node.js related files
+node_modules/
+
+# Ignore IDE and editor specific files
+.vscode/
+.idea/
+
+# Ignore build and compiled files
+build/
+dist/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore configuration files with sensitive information
+config.js
+.env
