@@ -1,7 +1,7 @@
 const tf = require('@tensorflow/tfjs');
 const fs = require('fs');
 
-const datasetPath = 'colorDataSet.json';
+const datasetPath = 'parcer/colorDataSet.json';
 
 // Чтение датасета из файла
 fs.readFile(datasetPath, 'utf8', (err, data) => {
