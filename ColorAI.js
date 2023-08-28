@@ -1,5 +1,5 @@
 const tf = require('@tensorflow/tfjs');
-const { ManualInput, generateColor, saveModel } = require("./dataGenerated");
+const { ManualInput, generateColor, saveModel, readDataset } = require("./dataGenerated");
 
 
 
@@ -65,4 +65,4 @@ async function main(epochs) {
     console.log(ManualInput(model, labels, manualColor));
 }
 
-main(Math.pow(2, 10));
+main(Math.pow(2, 14));
