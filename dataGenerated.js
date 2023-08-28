@@ -66,8 +66,7 @@ async function loadModel() {
 async function readDataset() {
     try {
         const data = await fs.promises.readFile(datasetPath, 'utf8');
-        const dataset = JSON.parse(data);
-        return dataset;
+        return JSON.parse(data);
     } catch (err) {
         console.error('Error reading the dataset file:', err);
         return null;

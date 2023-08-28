@@ -1,4 +1,4 @@
-const { ManualInput, readDataset, loadModel } = require("./dataGenerated");
+const { ManualInput, readDataset, loadModel, generateColor } = require("./dataGenerated");
 
 async function main() {
     // Загрузка обученной модели
@@ -15,8 +15,8 @@ async function main() {
 
     // Использование загруженной модели для классификации цвета
     const manualColor = {
-        r: 255,
-        g: 0,
+        r: 0,
+        g: 1,
         b: 0
     };
     const result = ManualInput(loadedModel, labels, manualColor);

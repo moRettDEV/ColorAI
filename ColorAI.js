@@ -1,4 +1,4 @@
-const tf = require('@tensorflow/tfjs');
+const tf = require('@tensorflow/tfjs-node-gpu');
 const { ManualInput, generateColor, saveModel, readDataset } = require("./dataGenerated");
 
 
@@ -53,9 +53,9 @@ async function main(epochs) {
 
     // Указываем цвет в ручную
     const manualColor = {
-        r: 255,
-        g: 0,
-        b: 0
+        r: 251,
+        g: 206,
+        b: 177
     };
 
     // Автомотически сгенирированный массив, на случай если нужен рандомный цвет
