@@ -1,6 +1,7 @@
 const tf = require('@tensorflow/tfjs');
 const fs = require('fs');
 const modelPath = './saved_model/model.json';
+const datasetPath = 'parser/colorDataSet.json';
 
 // Генирируем имя исходя из цвета
 function generateName(model, labels, input) {
@@ -62,4 +63,15 @@ async function loadModel() {
     return await tf.loadLayersModel(tf.io.fromMemory(modelTopology));
 }
 
-module.exports = {generateName, generateColor, saveModel, loadModel, ManualInput}
+async function readDataset() {
+    try {
+        const data = await fs.promises.readFile(datasetPath, 'utf8');
+        const dataset = JSON.parse(data);
+        return dataset;
+    } catch (err) {
+        console.error('Error reading the dataset file:', err);
+        return null;
+    }
+}
+
+module.exports = {generateName, readDataset, generateColor, saveModel, loadModel, ManualInput}

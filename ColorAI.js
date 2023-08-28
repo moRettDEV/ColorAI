@@ -1,18 +1,7 @@
-const tf = require('@tensorflow/tfjs');// Используем бэкенд с поддержкой GPU
-const fs = require('fs');
+const tf = require('@tensorflow/tfjs');
 const { ManualInput, generateColor, saveModel } = require("./dataGenerated");
-const datasetPath = 'parser/colorDataSet.json';
 
-async function readDataset() {
-    try {
-        const data = await fs.promises.readFile(datasetPath, 'utf8');
-        const dataset = JSON.parse(data);
-        return dataset;
-    } catch (err) {
-        console.error('Error reading the dataset file:', err);
-        return null;
-    }
-}
+
 
 async function trainModel(inputs, targets, labels, epochs) {
     const model = tf.sequential();
@@ -76,4 +65,4 @@ async function main(epochs) {
     console.log(ManualInput(model, labels, manualColor));
 }
 
-main(Math.pow(2, 1));
+main(Math.pow(2, 10));
